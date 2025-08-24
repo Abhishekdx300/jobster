@@ -1,0 +1,22 @@
+# Ignore version control files
+.git
+.gitignore
+
+# Ignore environment files - these are injected, not baked into the image
+.env
+
+# Ignore docker-compose file
+docker-compose.yml
+
+# Ignore temporary build files from Air
+tmp/
+
+# Ignore the persistent database data folder
+db-data/
+
+# Ignore IDE-specific files
+.vscode/
+.idea/
+
+
+todo.md

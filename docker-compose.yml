@@ -1,0 +1,26 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: jobster_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: mongo:latest
+    container_name: jobster_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./db-data:/data/db
+    env_file:
+      - .env
+    restart: unless-stopped
