@@ -11,13 +11,13 @@ RUN go mod download
 # Copy the rest of the code
 COPY . .
 
-RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/main
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/main ./cmd
 
 FROM alpine:latest
 
 WORKDIR /app
 
-COPY --from=builder /app/main
+COPY --from=builder /app/main .
 
 
 # Expose the dev port
