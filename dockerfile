@@ -1,6 +1,5 @@
-FROM golang:1.24-alpine
+FROM golang:1.24-alpine AS builder
 
-RUN go install github.com/air-verse/air@latest
 
 # Set working directory
 WORKDIR /app
@@ -12,8 +11,16 @@ RUN go mod download
 # Copy the rest of the code
 COPY . .
 
+RUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-w -s" -o /app/main
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/main
+
+
 # Expose the dev port
 EXPOSE 8080
 
-# Run dev server with Air
-CMD ["air"]
+CMD ["/app/main"]
