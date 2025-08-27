@@ -3,9 +3,11 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
+	"github.com/Abhishekdx300/jobster/internal/constants"
 	"github.com/Abhishekdx300/jobster/internal/helpers"
 	"github.com/Abhishekdx300/jobster/internal/models"
 	"github.com/Abhishekdx300/jobster/internal/services"
@@ -42,6 +44,20 @@ func (h *ApplyHandler) Create(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
+
+	// validate
+	if !constants.IsValidApplyTag(apply.Status) {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("invalid status option"))
+		return
+	}
+
+	// role, comment, link
+	isValid := helpers.ValidateSize(200, len(apply.Role), len(apply.Comment), len(apply.Link))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
 
@@ -60,6 +76,21 @@ func (h *ApplyHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var apply models.Apply
 	if err := json.NewDecoder(r.Body).Decode(&apply); err != nil {
 		helpers.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	// validate
+	if !constants.IsValidApplyTag(apply.Status) {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("invalid status option"))
+		return
+	}
+
+	// role, comment, link
+
+	// role, comment, link
+	isValid := helpers.ValidateSize(200, len(apply.Role), len(apply.Comment), len(apply.Link))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
 		return
 	}
 

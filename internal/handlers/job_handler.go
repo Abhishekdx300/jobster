@@ -3,11 +3,13 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/Abhishekdx300/jobster/internal/constants"
 	"github.com/Abhishekdx300/jobster/internal/helpers"
 	"github.com/Abhishekdx300/jobster/internal/models"
 	"github.com/Abhishekdx300/jobster/internal/repositories"
@@ -78,18 +80,6 @@ func (h *JobHandler) Search(w http.ResponseWriter, r *http.Request) {
 	helpers.WriteJSON(w, http.StatusOK, response)
 }
 
-func (h *JobHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
-	defer cancel()
-
-	jobs, err := h.service.GetAll(ctx)
-	if err != nil {
-		helpers.WriteError(w, http.StatusInternalServerError, err)
-		return
-	}
-	helpers.WriteJSON(w, http.StatusOK, jobs)
-}
-
 func (h *JobHandler) GetById(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "jobId")
 	// can modify context for timeout
@@ -110,6 +100,20 @@ func (h *JobHandler) Create(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
+
+	for _, tag := range job.Tags {
+		if !constants.IsValidJobTag(tag) {
+			helpers.WriteError(w, http.StatusBadRequest, errors.New("invalid tag provided: "+tag))
+			return
+		}
+	}
+
+	isValid := helpers.ValidateSize(50, len(job.Name))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
 
@@ -128,6 +132,19 @@ func (h *JobHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var job models.Job
 	if err := json.NewDecoder(r.Body).Decode(&job); err != nil {
 		helpers.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	for _, tag := range job.Tags {
+		if !constants.IsValidJobTag(tag) {
+			helpers.WriteError(w, http.StatusBadRequest, errors.New("invalid tag provided: "+tag))
+			return
+		}
+	}
+
+	isValid := helpers.ValidateSize(50, len(job.Name))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
 		return
 	}
 

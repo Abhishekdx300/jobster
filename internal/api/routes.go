@@ -7,6 +7,7 @@ import (
 	"github.com/Abhishekdx300/jobster/internal/repositories"
 	"github.com/Abhishekdx300/jobster/internal/services"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -24,6 +25,14 @@ func RegisterRoutes(db *mongo.Database) http.Handler {
 	jobHandler := handlers.NewJobHandler(jobService)
 	applyHandler := handlers.NewApplyHandler(applyService)
 	peopleHandler := handlers.NewPeopleHandler(peopleService)
+
+	r.Use(cors.Handler(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
+		AllowCredentials: true,
+		MaxAge:           300,
+	}))
 
 	r.Route("/jobs", func(r chi.Router) {
 		r.Post("/", jobHandler.Create)
