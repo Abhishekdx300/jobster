@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"time"
 
@@ -42,6 +43,13 @@ func (h *PeopleHandler) Create(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusBadRequest, err)
 		return
 	}
+
+	isValid := helpers.ValidateSize(50, len(peopleReach.ProfileLink), len(peopleReach.Comment))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
 	defer cancel()
 
@@ -60,6 +68,12 @@ func (h *PeopleHandler) Update(w http.ResponseWriter, r *http.Request) {
 	var peopleReach models.PeopleReach
 	if err := json.NewDecoder(r.Body).Decode(&peopleReach); err != nil {
 		helpers.WriteError(w, http.StatusBadRequest, err)
+		return
+	}
+
+	isValid := helpers.ValidateSize(50, len(peopleReach.ProfileLink), len(peopleReach.Comment))
+	if !isValid {
+		helpers.WriteError(w, http.StatusBadRequest, errors.New("Input size too long"))
 		return
 	}
 

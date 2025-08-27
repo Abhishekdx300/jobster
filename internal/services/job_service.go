@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/Abhishekdx300/jobster/internal/constants"
 	"github.com/Abhishekdx300/jobster/internal/models"
 	"github.com/Abhishekdx300/jobster/internal/repositories"
 )
@@ -34,10 +33,6 @@ func (s *JobService) GetById(ctx context.Context, id string) (*models.Job, error
 	return s.jobRepo.FindById(ctx, id)
 }
 
-func (s *JobService) GetAll(ctx context.Context) ([]models.Job, error) {
-	return s.jobRepo.GetAll(ctx)
-}
-
 func (s *JobService) Create(ctx context.Context, job *models.Job) (*models.Job, error) {
 	// db validations
 
@@ -50,12 +45,6 @@ func (s *JobService) Create(ctx context.Context, job *models.Job) (*models.Job, 
 	}
 	// else create
 
-	for _, tag := range job.Tags {
-		if !constants.IsValidJobTag(tag) {
-			return nil, errors.New("invalid tag provided: " + tag)
-		}
-	}
-
 	job.Name = jobName
 	job.DateAdded = time.Now()
 
@@ -63,11 +52,6 @@ func (s *JobService) Create(ctx context.Context, job *models.Job) (*models.Job, 
 }
 
 func (s *JobService) Update(ctx context.Context, id string, job *models.Job) error {
-	for _, tag := range job.Tags {
-		if !constants.IsValidJobTag(tag) {
-			return errors.New("invalid tag provided: " + tag)
-		}
-	}
 	return s.jobRepo.Update(ctx, id, job)
 }
 

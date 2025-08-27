@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Abhishekdx300/jobster/internal/constants"
 	"github.com/Abhishekdx300/jobster/internal/models"
 	"github.com/Abhishekdx300/jobster/internal/repositories"
 )
@@ -31,10 +30,6 @@ func (s *ApplyService) FindByJobId(ctx context.Context, jobId string) ([]models.
 }
 
 func (s *ApplyService) Create(ctx context.Context, jobId string, apply *models.Apply) (*models.Apply, error) {
-	// validate
-	if !constants.IsValidApplyTag(apply.Status) {
-		return nil, errors.New("invalid status provided: " + apply.Status)
-	}
 
 	// check if jobId is present or not
 	_, err := s.jobRepo.FindById(ctx, jobId)
@@ -56,10 +51,6 @@ func (s *ApplyService) Create(ctx context.Context, jobId string, apply *models.A
 }
 
 func (s *ApplyService) Update(ctx context.Context, jobId string, id string, apply models.Apply) error {
-	// validate
-	if !constants.IsValidApplyTag(apply.Status) {
-		return errors.New("invalid status provided: " + apply.Status)
-	}
 
 	// check if jobId is present or not
 	_, err := s.jobRepo.FindById(ctx, jobId)

@@ -73,22 +73,6 @@ func (r *JobRepository) SearchAndFilter(ctx context.Context, params SearchParams
 
 }
 
-func (repo *JobRepository) GetAll(ctx context.Context) ([]models.Job, error) {
-	var jobs []models.Job
-
-	cursor, err := repo.collection.Find(ctx, bson.M{})
-	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	if err = cursor.All(ctx, &jobs); err != nil {
-		return nil, err
-	}
-
-	return jobs, nil
-}
-
 func (repo *JobRepository) FindByName(ctx context.Context, name string) (*models.Job, error) {
 	var job models.Job
 	err := repo.collection.FindOne(ctx, bson.M{"name": name}).Decode(&job)
